@@ -23,7 +23,7 @@ def get_h1_graphql_token(hostsession):
 	return jsn['graphql_token']
 	
 	
-def get_h1_assets(token, handle):
+def get_h1_assets(token, handle,category):
 	GET_ASSETS_QUERY = "eyJxdWVyeSI6InF1ZXJ5IFRlYW1fYXNzZXRzKCRmaXJzdF8wOkludCEpIHtxdWVyeSB7aWQsLi4uRjB9fSBmcmFnbWVudCBGMCBvbiBRdWVyeSB7bWUge19tZW1iZXJzaGlwX0E6bWVtYmVyc2hpcCh0ZWFtX2hhbmRsZTpcIl9fUkVQTEFDRU1FX19cIikge3Blcm1pc3Npb25zLGlkfSxpZH0sX3RlYW1fQTp0ZWFtKGhhbmRsZTpcIl9fUkVQTEFDRU1FX19cIikge2hhbmRsZSxfc3RydWN0dXJlZF9zY29wZV92ZXJzaW9uc19BOnN0cnVjdHVyZWRfc2NvcGVfdmVyc2lvbnMoYXJjaGl2ZWQ6ZmFsc2UpIHttYXhfdXBkYXRlZF9hdH0sX3N0cnVjdHVyZWRfc2NvcGVzX0I6c3RydWN0dXJlZF9zY29wZXMoZmlyc3Q6JGZpcnN0XzAsYXJjaGl2ZWQ6ZmFsc2UsZWxpZ2libGVfZm9yX3N1Ym1pc3Npb246dHJ1ZSkge2VkZ2VzIHtub2RlIHtpZCxhc3NldF90eXBlLGFzc2V0X2lkZW50aWZpZXIscmVuZGVyZWRfaW5zdHJ1Y3Rpb24sbWF4X3NldmVyaXR5LGVsaWdpYmxlX2Zvcl9ib3VudHl9LGN1cnNvcn0scGFnZUluZm8ge2hhc05leHRQYWdlLGhhc1ByZXZpb3VzUGFnZX19LF9zdHJ1Y3R1cmVkX3Njb3Blc19DOnN0cnVjdHVyZWRfc2NvcGVzKGZpcnN0OiRmaXJzdF8wLGFyY2hpdmVkOmZhbHNlLGVsaWdpYmxlX2Zvcl9zdWJtaXNzaW9uOmZhbHNlKSB7ZWRnZXMge25vZGUge2lkLGFzc2V0X3R5cGUsYXNzZXRfaWRlbnRpZmllcixyZW5kZXJlZF9pbnN0cnVjdGlvbn0sY3Vyc29yfSxwYWdlSW5mbyB7aGFzTmV4dFBhZ2UsaGFzUHJldmlvdXNQYWdlfX0saWR9LGlkfSIsInZhcmlhYmxlcyI6eyJmaXJzdF8wIjo1MDB9fQ=="
 	query = base64.b64decode(GET_ASSETS_QUERY)
 	query = query.replace(b"__REPLACEME__", handle.encode())
@@ -87,7 +87,7 @@ def get_h1_privassets(token):
 			handle = edge["node"]["handle"]
 			if edge["node"]["state"] == "public_mode":
 				continue
-			get_h1_assets(H1_XAUTH_TOKEN,handle)
+			get_h1_assets(H1_XAUTH_TOKEN,handle,sys.argv[2])
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
