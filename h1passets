@@ -35,10 +35,33 @@ def get_h1_assets(token, handle):
 	resp = requests.post('https://hackerone.com/graphql',headers=hdrs,data=query)
 	data = json.loads(resp.text)
 	
-	for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
-		if elem["node"]["asset_type"] == "URL":
-			if elem["node"]["eligible_for_bounty"] == True:
-				print (str(elem["node"]["asset_identifier"]))
+	if category == "url":
+
+		for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+			if elem["node"]["asset_type"] == "URL":
+				if elem["node"]["eligible_for_bounty"] == True:
+					print (str(elem["node"]["asset_identifier"]))
+	elif category == "mobile":
+		for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+			if elem["node"]["asset_type"] == "GOOGLE_PLAY_APP_ID" or elem["node"]["asset_type"] == "OTHER_APK" or elem["node"]["asset_type"] == "APPLE_STORE_APP_ID":
+				if elem["node"]["eligible_for_bounty"] == True:
+					print (str(elem["node"]["asset_identifier"]))
+	elif category == "other":
+		for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+			if elem["node"]["asset_type"] == "OTHER":
+				if elem["node"]["eligible_for_bounty"] == True:
+					print (str(elem["node"]["asset_identifier"]))
+	elif category == "hardware":
+		for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+			if elem["node"]["asset_type"] == "HARDWARE":
+				if elem["node"]["eligible_for_bounty"] == True:
+					print (str(elem["node"]["asset_identifier"]))
+
+	elif category == "all":
+		for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+			if elem["node"]["asset_type"] == "GOOGLE_PLAY_APP_ID" or elem["node"]["asset_type"] == "OTHER_APK" or elem["node"]["asset_type"] == "APPLE_STORE_APP_ID" or elem["node"]["asset_type"] == "URL" or elem["node"]["asset_type"] == "OTHER" or elem["node"]["asset_type"] == "HARDWARE":
+				if elem["node"]["eligible_for_bounty"] == True:
+					print (str(elem["node"]["asset_identifier"]))
 	
 def get_h1_privassets(token):
 	H1_XAUTH_TOKEN = token
