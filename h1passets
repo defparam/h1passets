@@ -90,7 +90,7 @@ def get_h1_privassets(token):
 			get_h1_assets(H1_XAUTH_TOKEN,handle)
 
 if __name__ == "__main__":
-	if len(sys.argv) != 2:
+	if len(sys.argv) != 3:
 		print ("Usage: h1passets <Your HackerOne __Host-session Token>")
 		exit(1)
 
