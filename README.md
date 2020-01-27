@@ -3,6 +3,7 @@ This python3 script will take your HackerOne host-session cookie and will automa
 
 ## Usage
 **python3 h1passets \<Your HackerOne __Host-session Token\> \<catagory\>**
+
 Catagories: url, mobile, other, hardware, all (default: url)
 
 ## WARNING
