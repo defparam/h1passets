@@ -7,7 +7,7 @@ This python3 script will take your HackerOne host-session cookie and will automa
 Catagories: url, mobile, other, hardware, all (default: url)
 
 ## WARNING
-**THIS SCRIPT HANDLES YOUR H1 SESSION TOKEN WHICH CONTAINS YOUR HACKERONE PRIVATE DATA AND THE PRIVATE DATA OF YOUR HACKERONE CUSTOMERS. BECAREFUL WHEN HANDLING THIS TOKEN.**
+**THIS SCRIPT HANDLES YOUR H1 SESSION TOKEN WHICH CONTAINS YOUR HACKERONE PRIVATE DATA AND THE PRIVATE DATA OF YOUR HACKERONE CUSTOMERS. BECAREFUL WHEN HANDLING THIS TOKEN. THE AUTHORS ARE NOT LIABLE FOR ANY MISUSE OF THIS SCRIPT OR YOUR HACKERONE SESSION TOKEN. PLEASE USE AT YOUR OWN RISK.**
 
 It is suggested that you assign your token into a variable once using `export` and pushing the env variable into the script's argument list (as shown in the examples).
 
