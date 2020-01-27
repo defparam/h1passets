@@ -6,7 +6,7 @@ This python3 script will take your HackerOne host-session cookie and will automa
 
 ## Example
 ```
-bash> h1passets JGH92kd9...b5e
+bash> python3 h1passets JGH92kd9...b5e
 www1.private-bounty1-uri.com
 api.private-bounty1-uri.com
 *.private-bounty1-uri-cloud.com
