@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+#
+# h1passets is a tool that prints all private program assets that are in-scope and eligible for bounty
+#
+# Author: @defparam (Evan Custodio)
+#
+import sys
+import requests
+import base64
+import json
+
+def get_h1_graphql_token(hostsession):
+	hdrs = {"Cookie": "__Host-session="+hostsession,
+	"Content-type": "application/json", 
+	"Host": "hackerone.com",
+	"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+	"Accept": "*/*"}
+	resp = requests.get('https://hackerone.com/current_user/graphql_token',headers=hdrs)
+	jsn = json.loads(resp.text)
+	if (jsn['graphql_token'] == "----"):
+		print ("Error: The supplied HackerOne __Host-session token appears to be invalid.")
+		exit(1)
+	return jsn['graphql_token']
+	
+	
+def get_h1_assets(token, handle):
+	GET_ASSETS_QUERY = "eyJxdWVyeSI6InF1ZXJ5IFRlYW1fYXNzZXRzKCRmaXJzdF8wOkludCEpIHtxdWVyeSB7aWQsLi4uRjB9fSBmcmFnbWVudCBGMCBvbiBRdWVyeSB7bWUge19tZW1iZXJzaGlwX0E6bWVtYmVyc2hpcCh0ZWFtX2hhbmRsZTpcIl9fUkVQTEFDRU1FX19cIikge3Blcm1pc3Npb25zLGlkfSxpZH0sX3RlYW1fQTp0ZWFtKGhhbmRsZTpcIl9fUkVQTEFDRU1FX19cIikge2hhbmRsZSxfc3RydWN0dXJlZF9zY29wZV92ZXJzaW9uc19BOnN0cnVjdHVyZWRfc2NvcGVfdmVyc2lvbnMoYXJjaGl2ZWQ6ZmFsc2UpIHttYXhfdXBkYXRlZF9hdH0sX3N0cnVjdHVyZWRfc2NvcGVzX0I6c3RydWN0dXJlZF9zY29wZXMoZmlyc3Q6JGZpcnN0XzAsYXJjaGl2ZWQ6ZmFsc2UsZWxpZ2libGVfZm9yX3N1Ym1pc3Npb246dHJ1ZSkge2VkZ2VzIHtub2RlIHtpZCxhc3NldF90eXBlLGFzc2V0X2lkZW50aWZpZXIscmVuZGVyZWRfaW5zdHJ1Y3Rpb24sbWF4X3NldmVyaXR5LGVsaWdpYmxlX2Zvcl9ib3VudHl9LGN1cnNvcn0scGFnZUluZm8ge2hhc05leHRQYWdlLGhhc1ByZXZpb3VzUGFnZX19LF9zdHJ1Y3R1cmVkX3Njb3Blc19DOnN0cnVjdHVyZWRfc2NvcGVzKGZpcnN0OiRmaXJzdF8wLGFyY2hpdmVkOmZhbHNlLGVsaWdpYmxlX2Zvcl9zdWJtaXNzaW9uOmZhbHNlKSB7ZWRnZXMge25vZGUge2lkLGFzc2V0X3R5cGUsYXNzZXRfaWRlbnRpZmllcixyZW5kZXJlZF9pbnN0cnVjdGlvbn0sY3Vyc29yfSxwYWdlSW5mbyB7aGFzTmV4dFBhZ2UsaGFzUHJldmlvdXNQYWdlfX0saWR9LGlkfSIsInZhcmlhYmxlcyI6eyJmaXJzdF8wIjo1MDB9fQ=="
+	query = base64.b64decode(GET_ASSETS_QUERY)
+	query = query.replace(b"__REPLACEME__", handle.encode())
+	hdrs = {"X-Auth-Token": token,
+		"Content-type": "application/json", 
+		"Host": "hackerone.com",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+		"Accept": "*/*"}
+	resp = requests.post('https://hackerone.com/graphql',headers=hdrs,data=query)
+	data = json.loads(resp.text)
+	
+	for elem in data["data"]["query"]["_team_A"]["_structured_scopes_B"]["edges"]:
+		if elem["node"]["asset_type"] == "URL":
+			if elem["node"]["eligible_for_bounty"] == True:
+				print (str(elem["node"]["asset_identifier"]))
+	
+def get_h1_privassets(token):
+	H1_XAUTH_TOKEN = token
+	PRIV_PROG_QUERY = "eyJvcGVyYXRpb25OYW1lIjoiTXlQcm9ncmFtc1F1ZXJ5IiwidmFyaWFibGVzIjp7IndoZXJlIjp7Il9hbmQiOlt7Il9vciI6W3sic3VibWlzc2lvbl9zdGF0ZSI6eyJfZXEiOiJvcGVuIn19LHsic3VibWlzc2lvbl9zdGF0ZSI6eyJfZXEiOiJhcGlfb25seSJ9fSx7InN1Ym1pc3Npb25fc3RhdGUiOnsiX2lzX251bGwiOnRydWV9fV19LHsiX29yIjpbeyJfYW5kIjpbeyJfb3IiOlt7ImJvb2ttYXJrZWRfdGVhbV91c2VycyI6eyJpc19tZSI6dHJ1ZX19LHsid2hpdGVsaXN0ZWRfaGFja2VycyI6eyJpc19tZSI6dHJ1ZX19XX0seyJzdGF0ZSI6eyJfZXEiOiJzb2Z0X2xhdW5jaGVkIn19XX0seyJfYW5kIjpbeyJfb3IiOlt7ImJvb2ttYXJrZWRfdGVhbV91c2VycyI6eyJpc19tZSI6dHJ1ZX19LHsicmVwb3J0ZXJzIjp7ImlzX21lIjp0cnVlfX1dfSx7Il9vciI6W3sic3RhdGUiOnsiX2VxIjoicHVibGljX21vZGUifX0seyJleHRlcm5hbF9wcm9ncmFtIjp7ImlkIjp7Il9pc19udWxsIjpmYWxzZX19fV19XX1dfV19LCJjb3VudCI6MjUsIm9yZGVyQnkiOm51bGwsInNlY3VyZU9yZGVyQnkiOnsic3RhcnRlZF9hY2NlcHRpbmdfYXQiOnsiX2RpcmVjdGlvbiI6IkRFU0MifX0sImN1cnNvciI6IiJ9LCJxdWVyeSI6InF1ZXJ5IE15UHJvZ3JhbXNRdWVyeSgkY3Vyc29yOiBTdHJpbmcsICRjb3VudDogSW50LCAkd2hlcmU6IEZpbHRlcnNUZWFtRmlsdGVySW5wdXQsICRvcmRlckJ5OiBUZWFtT3JkZXJJbnB1dCwgJHNlY3VyZU9yZGVyQnk6IEZpbHRlcnNUZWFtRmlsdGVyT3JkZXIpIHtcbiAgbWUge1xuICAgIGlkXG4gICAgLi4uTXlIYWNrZXJPbmVTdWJIZWFkZXJcbiAgICBfX3R5cGVuYW1lXG4gIH1cbiAgdGVhbXMoZmlyc3Q6ICRjb3VudCwgYWZ0ZXI6ICRjdXJzb3IsIG9yZGVyX2J5OiAkb3JkZXJCeSwgc2VjdXJlX29yZGVyX2J5OiAkc2VjdXJlT3JkZXJCeSwgd2hlcmU6ICR3aGVyZSkge1xuICAgIHBhZ2VJbmZvIHtcbiAgICAgIGVuZEN1cnNvclxuICAgICAgaGFzTmV4dFBhZ2VcbiAgICAgIF9fdHlwZW5hbWVcbiAgICB9XG4gICAgZWRnZXMge1xuICAgICAgY3Vyc29yXG4gICAgICBub2RlIHtcbiAgICAgICAgaWRcbiAgICAgICAgaGFuZGxlXG4gICAgICAgIG5hbWVcbiAgICAgICAgY3VycmVuY3lcbiAgICAgICAgdGVhbV9wcm9maWxlX3BpY3R1cmU6IHByb2ZpbGVfcGljdHVyZShzaXplOiBtZWRpdW0pXG4gICAgICAgIHN1Ym1pc3Npb25fc3RhdGVcbiAgICAgICAgdHJpYWdlX2FjdGl2ZVxuICAgICAgICBzdGF0ZVxuICAgICAgICBzdGFydGVkX2FjY2VwdGluZ19hdFxuICAgICAgICBudW1iZXJfb2ZfcmVwb3J0c19mb3JfdXNlclxuICAgICAgICBudW1iZXJfb2ZfdmFsaWRfcmVwb3J0c19mb3JfdXNlclxuICAgICAgICBib3VudHlfZWFybmVkX2Zvcl91c2VyXG4gICAgICAgIGxhc3RfaW52aXRhdGlvbl9hY2NlcHRlZF9hdF9mb3JfdXNlclxuICAgICAgICBib29rbWFya2VkXG4gICAgICAgIGV4dGVybmFsX3Byb2dyYW0ge1xuICAgICAgICAgIGlkXG4gICAgICAgICAgX190eXBlbmFtZVxuICAgICAgICB9XG4gICAgICAgIC4uLlRlYW1MaW5rV2l0aE1pbmlQcm9maWxlXG4gICAgICAgIC4uLlRlYW1UYWJsZUF2ZXJhZ2VCb3VudHlcbiAgICAgICAgLi4uVGVhbVRhYmxlTWluaW11bUJvdW50eVxuICAgICAgICAuLi5UZWFtVGFibGVSZXNvbHZlZFJlcG9ydHNcbiAgICAgICAgX190eXBlbmFtZVxuICAgICAgfVxuICAgICAgX190eXBlbmFtZVxuICAgIH1cbiAgICBfX3R5cGVuYW1lXG4gIH1cbn1cblxuZnJhZ21lbnQgVGVhbUxpbmtXaXRoTWluaVByb2ZpbGUgb24gVGVhbSB7XG4gIGlkXG4gIGhhbmRsZVxuICBuYW1lXG4gIF9fdHlwZW5hbWVcbn1cblxuZnJhZ21lbnQgVGVhbVRhYmxlQXZlcmFnZUJvdW50eSBvbiBUZWFtIHtcbiAgaWRcbiAgY3VycmVuY3lcbiAgYXZlcmFnZV9ib3VudHlfbG93ZXJfYW1vdW50XG4gIGF2ZXJhZ2VfYm91bnR5X3VwcGVyX2Ftb3VudFxuICBfX3R5cGVuYW1lXG59XG5cbmZyYWdtZW50IFRlYW1UYWJsZU1pbmltdW1Cb3VudHkgb24gVGVhbSB7XG4gIGlkXG4gIGN1cnJlbmN5XG4gIGJhc2VfYm91bnR5XG4gIF9fdHlwZW5hbWVcbn1cblxuZnJhZ21lbnQgVGVhbVRhYmxlUmVzb2x2ZWRSZXBvcnRzIG9uIFRlYW0ge1xuICBpZFxuICByZXNvbHZlZF9yZXBvcnRfY291bnRcbiAgX190eXBlbmFtZVxufVxuXG5mcmFnbWVudCBNeUhhY2tlck9uZVN1YkhlYWRlciBvbiBVc2VyIHtcbiAgaWRcbiAgaGFzX2NoZWNrbGlzdF9jaGVja19yZXNwb25zZXNcbiAgc29mdF9sYXVuY2hfaW52aXRhdGlvbnMoc3RhdGU6IG9wZW4pIHtcbiAgICB0b3RhbF9jb3VudFxuICAgIF9fdHlwZW5hbWVcbiAgfVxuICBfX3R5cGVuYW1lXG59XG4ifQ=="	
+	query = json.loads(base64.b64decode(PRIV_PROG_QUERY))
+	last_cursor = ""
+	
+	while(1):
+		query["variables"]["cursor"] = last_cursor
+		hdrs = {"X-Auth-Token": H1_XAUTH_TOKEN,
+		"Content-type": "application/json", 
+		"Host": "hackerone.com",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+		"Accept": "*/*"}
+		resp = requests.post('https://hackerone.com/graphql',headers=hdrs,data=json.dumps(query))
+		data = json.loads(resp.text)
+		
+		if len(data["data"]["teams"]["edges"]) == 0:
+			break
+		
+		for edge in data["data"]["teams"]["edges"]:
+			last_cursor = edge["cursor"]
+			handle = edge["node"]["handle"]
+			if edge["node"]["state"] == "public_mode":
+				continue
+			get_h1_assets(H1_XAUTH_TOKEN,handle)
+
+if __name__ == "__main__":
+	if len(sys.argv) != 2:
+		print ("Usage: h1passets <Your HackerOne __Host-session Token>")
+		exit(1)
+
+	graphql_tokens = get_h1_graphql_token(sys.argv[1])
+	get_h1_privassets(graphql_tokens)
