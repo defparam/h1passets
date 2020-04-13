@@ -4,7 +4,7 @@ This python3 script will take your HackerOne host-session cookie and will automa
 ## Usage
 **python3 h1passets \<Your HackerOne __Host-session Token\> \<catagory\>**
 
-Catagories: url, mobile, other, hardware, all (default: url)
+Catagories: url, mobile, android, apple, other, hardware, all (default: url)
 
 ## WARNING
 **THIS SCRIPT HANDLES YOUR H1 SESSION TOKEN WHICH CONTAINS YOUR HACKERONE PRIVATE DATA AND THE PRIVATE DATA OF YOUR HACKERONE PROGRAMS. BECAREFUL WHEN HANDLING THIS TOKEN. THE AUTHORS ARE NOT LIABLE FOR ANY MISUSE OF THIS SCRIPT OR YOUR HACKERONE SESSION TOKEN. PLEASE USE AT YOUR OWN RISK.**
