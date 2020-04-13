@@ -2,11 +2,11 @@
 #
 # h1passets is a tool that prints all private program assets that are in-scope and eligible for bounty
 #
-# Authors: defparam, Abss
+# Authors: defparam, Abss, martinbydefault
 #
 # MIT License
 # 
-# Copyright (c) 2020 defparam, Abss
+# Copyright (c) 2020 defparam, Abss, martinbydefault
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
